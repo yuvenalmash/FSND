@@ -148,7 +148,8 @@ def create_app(test_config=None):
   def search_questions():
     search_term = request.json.get('searchTerm')
 
-    questions = [question.format() for question in Question.query.filter(Question.question.ilike(f'%{search_term}%')).all()]
+    questions = [question.format() for question in Question.query.filter(
+      Question.question.ilike(f'%{search_term}%')).all()]
 
     if len(questions) == 0:
       abort(404)
@@ -168,7 +169,21 @@ def create_app(test_config=None):
   categories in the left column will cause only questions of that 
   category to be shown. 
   '''
+  @app.route('/categories/<int:category_id>/questions', methods=['GET'])
+  def get_questions_by_category(category_id):
 
+    questions = [question.format() for question in Question.query.filter(
+      Question.category == category_id).all()]
+
+    if len(questions) == 0:
+      abort(404)
+
+    return jsonify({
+      'success': True,
+      'questions': questions,
+      'total_questions': len(questions),
+      'current_category': category_id
+    })
 
   '''
   @TODO: 
